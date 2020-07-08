@@ -58,43 +58,89 @@ public class Sprocket extends processing.core.PApplet {
 		Collections.shuffle(links);
 		while (links.size() > 0) {
 			Pair p = links.remove(links.size() - 1);
-			if (!border(p.r, p.c)) {
+			if (!border(p)) {
 				Pair[] endpoints = endpoints(p);
-				if (endpoints[0]!=null && numLinks(endpoints[0])<2) {
+				if (endpoints[0] != null
+						&& numLinks(endpoints[0]) < 2) {
 					grid[p.r][p.c] = YES;
 				}
-				if (endpoints[1]!=null && numLinks(endpoints[1])<2) {
+				if (endpoints[1] != null
+						&& numLinks(endpoints[1]) < 2) {
 					grid[p.r][p.c] = YES;
 				}
-				
+
 			}
 		}
 
 	}
-	
+
+	/**
+	 * Can link and unlink pairs using YES/NO
+	 * 
+	 * @param p1
+	 * @param p2
+	 * @param linked the state to set for the link (YES or NO)
+	 */
+	private void link(Pair p1, Pair p2, int linked) {
+		int row = (p1.r + p2.r) / 2;
+		int col = (p1.c + p2.c) / 2;
+		grid[row][col] = linked;
+	}
+
+	/**
+	 * Given a link pair, return its endpoints. One of the endpoints may be
+	 * null, if the link borders the perimeter.
+	 * 
+	 * @param p
+	 *            a pair representing a link location in the grid
+	 * @return two pairs, one of which may be null
+	 */
 	private Pair[] endpoints(Pair p) {
 		// if even row, links are vertical
-		if (p.r%2==0) {
-			Pair above = p.r>0? new Pair(p.r-1, p.c): null;
-			Pair below = p.r<grid.length-1? new Pair(p.r+1, p.c):null;
-			return new Pair[] {above, below};
+		if (p.r % 2 == 0) {
+			Pair above = p.r > 0 ? new Pair(p.r - 1, p.c) : null;
+			Pair below = p.r < grid.length - 1
+					? new Pair(p.r + 1, p.c)
+					: null;
+			return new Pair[] { above, below };
 		}
-		Pair left = p.c>0? new Pair(p.r, p.c-1):null;
-		Pair right = p.c<grid[0].length-1? new Pair(p.r, p.c+1):null;
-		return new Pair[] {left, right};
+		// odd row, so link is horizontal
+		Pair left = p.c > 0 ? new Pair(p.r, p.c - 1) : null;
+		Pair right = p.c < grid[0].length - 1
+				? new Pair(p.r, p.c + 1)
+				: null;
+		return new Pair[] { left, right };
 	}
-	
+
+	/**
+	 * Counts the number of links made surrounding this location
+	 * 
+	 * @param p
+	 * @return
+	 */
 	private int numLinks(Pair p) {
-		if (border(p.r, p.c)) return -1;
+		if (border(p))
+			return -1;
 		int num = 0;
-		if (grid[p.r-1][p.c]==YES) num++;
-		if (grid[p.r+1][p.c]==YES) num++;
-		if (grid[p.r][p.c-1]==YES) num++;
-		if (grid[p.r][p.c+1]==YES) num++;
+		if (grid[p.r - 1][p.c] == YES)
+			num++;
+		if (grid[p.r + 1][p.c] == YES)
+			num++;
+		if (grid[p.r][p.c - 1] == YES)
+			num++;
+		if (grid[p.r][p.c + 1] == YES)
+			num++;
 		return num;
 	}
 
-	public boolean border(int r, int c) {
+	/**
+	 * Tests whether these coordinates lie along the border.
+	 * 
+	 * @param r
+	 * @param c
+	 * @return is along first or last row or column
+	 */
+	private boolean border(int r, int c) {
 		if (r == 0 || c == 0)
 			return true;
 		if (r == grid.length - 1 || c == grid[r].length - 1)
@@ -102,7 +148,18 @@ public class Sprocket extends processing.core.PApplet {
 		return false;
 	}
 
+	/**
+	 * Alternate way to determine if pair lies along the border.
+	 * 
+	 * @param p
+	 * @return is along first or last row or column
+	 */
+	private boolean border(Pair p) {
+		return border(p.r, p.c);
+	}
+
 	public void draw() {
+		// translate(width/2, 0);
 		// rotate(PI/4);
 		translate(dist, dist);
 		for (int r = 0; r < grid.length; r++) {
@@ -113,10 +170,6 @@ public class Sprocket extends processing.core.PApplet {
 				popMatrix();
 			}
 		}
-		// resetMatrix();
-		// rectMode(CENTER);
-		// fill(255, 0, 255);
-		// rect(width/2, height/2, width/2, height/2, -50);
 	}
 
 	void drawCell(int r, int c) {
@@ -159,28 +212,14 @@ public class Sprocket extends processing.core.PApplet {
 				&& c < grid[r].length;
 	}
 
-	/**
-	 * When the operating system detects a key press, it executes this method.
-	 * Avoid putting drawing commands in here. Instead, use this method to
-	 * modify variables that are referenced by draw().
-	 */
 	public void keyPressed() {
 	}
 
-	/**
-	 * When the operating system detects a mouse press, it executes this method.
-	 * Avoid putting drawing commands in here. Instead, use this method to
-	 * modify variables that are referenced by draw().
-	 */
 	public void mousePressed() {
 		background(64);
 		fillGrid();
 	}
 
-	/**
-	 * See the PApplet documentation to discover other methods that can be
-	 * overridden.
-	 */
 	class Pair {
 		int r, c;
 
